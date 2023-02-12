@@ -49,7 +49,7 @@
                     </execution>
                     <execution>
                         <id>report</id>
-                        <phase>verify</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>

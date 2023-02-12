@@ -1,13 +1,16 @@
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import praktikum.Bun;
+import praktikum.Database;
 
 @RunWith(Parameterized.class)
 public class BunPriceTest {
 
     private float price;
+    private Database database;
 
     public BunPriceTest(float price) {
         this.price = price;
@@ -27,9 +30,14 @@ public class BunPriceTest {
         };
     }
 
+    @Before
+    public void setUp() {
+        database = new Database();
+    }
+
     @Test
     public void getPriceBunReturnsCorrectValue (){
-        Bun bun = new Bun ("Любой простой продукт - 123", price);
+        Bun bun = new Bun (database.availableBuns().get(0).getName(), price);
         Assert.assertEquals(price, bun.getPrice(), 0);
     }
 }

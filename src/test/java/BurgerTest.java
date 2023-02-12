@@ -1,4 +1,5 @@
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -7,13 +8,13 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import praktikum.Bun;
 import praktikum.Burger;
+import praktikum.Database;
 import praktikum.Ingredient;
-
-import static praktikum.IngredientType.FILLING;
-import static praktikum.IngredientType.SAUCE;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BurgerTest {
+
+    private Database database;
 
     @Mock
     Bun bun1;
@@ -35,6 +36,11 @@ public class BurgerTest {
 
     @Spy
     private Burger burger1 = new Burger();
+
+    @Before
+    public void setUp() {
+        database = new Database();
+    }
 
     @Test
     public void createNewBurgerBunIsNull(){
@@ -142,13 +148,13 @@ public class BurgerTest {
         Assert.assertEquals(ingredient2, burger.ingredients.get(0));
         Assert.assertEquals(ingredient1, burger.ingredients.get(1));
     }
-/*
+
     @Test
     public void getPriceBurgerReturnZeroPriceForEmptyBurger(){
         Burger burger = new Burger();
         Assert.assertEquals(0, burger.getPrice(), 0);
     }
-*/
+
     @Test
     public void getPriceBurgerShouldMultiplyBunPrice(){
         Burger burger = new Burger();
@@ -185,9 +191,11 @@ public class BurgerTest {
     @Test
     public void getReceiptBurgerReturnBun(){
         burger1.bun = bun1;
-        Mockito.when(bun1.getName()).thenReturn("Тостовый хлеб");
+        Mockito.when(bun1.getName()).thenReturn(database.availableBuns().get(2).getName());
         Mockito.when(burger1.getPrice()).thenReturn(200f);
-        String expected = String.format("(==== Тостовый хлеб ====)%n(==== Тостовый хлеб ====)%n%nPrice: 200,000000%n");
+        String expected = String.format("(==== " + database.availableBuns().get(2).getName() + " ====)%n(==== "
+                + database.availableBuns().get(2).getName()
+                + " ====)%n%nPrice: %f%n", burger1.getPrice());
         Assert.assertEquals(expected, burger1.getReceipt());
     }
 
@@ -195,11 +203,15 @@ public class BurgerTest {
     public void getReceiptBurgerReturnIngredient(){
         burger1.bun = bun1;
         burger1.ingredients.add(ingredient1);
-        Mockito.when(bun1.getName()).thenReturn("Тостовый хлеб");
-        Mockito.when(ingredient1.getName()).thenReturn("Коктейльный соус");
-        Mockito.when(ingredient1.getType()).thenReturn(SAUCE);
+        Mockito.when(bun1.getName()).thenReturn(database.availableBuns().get(2).getName());
+        Mockito.when(ingredient1.getName()).thenReturn(database.availableIngredients().get(2).getName());
+        Mockito.when(ingredient1.getType()).thenReturn(database.availableIngredients().get(2).getType());
         Mockito.when(burger1.getPrice()).thenReturn(2220f);
-        String expected = String.format("(==== Тостовый хлеб ====)%n= sauce Коктейльный соус =%n(==== Тостовый хлеб ====)%n%nPrice: 2220,000000%n");
+        String expected = String.format("(==== " + database.availableBuns().get(2).getName() + " ====)%n= "
+                + database.availableIngredients().get(2).getType().toString().toLowerCase() + " "
+                + database.availableIngredients().get(2).getName() + " =%n(==== "
+                + database.availableBuns().get(2).getName()
+                + " ====)%n%nPrice: %f%n", burger1.getPrice());
         Assert.assertEquals(expected, burger1.getReceipt());
     }
 
@@ -209,27 +221,37 @@ public class BurgerTest {
         burger1.ingredients.add(ingredient1);
         burger1.ingredients.add(ingredient2);
         burger1.ingredients.add(ingredient3);
-        Mockito.when(bun1.getName()).thenReturn("Тостовый хлеб");
-        Mockito.when(ingredient1.getName()).thenReturn("Коктейльный соус");
-        Mockito.when(ingredient1.getType()).thenReturn(SAUCE);
-        Mockito.when(ingredient2.getName()).thenReturn("Овощи микс");
-        Mockito.when(ingredient2.getType()).thenReturn(FILLING);
-        Mockito.when(ingredient3.getName()).thenReturn("Котлета 1");
-        Mockito.when(ingredient3.getType()).thenReturn(FILLING);
+        Mockito.when(bun1.getName()).thenReturn(database.availableBuns().get(2).getName());
+        Mockito.when(ingredient1.getName()).thenReturn(database.availableIngredients().get(2).getName());
+        Mockito.when(ingredient1.getType()).thenReturn(database.availableIngredients().get(2).getType());
+        Mockito.when(ingredient2.getName()).thenReturn(database.availableIngredients().get(4).getName());
+        Mockito.when(ingredient2.getType()).thenReturn(database.availableIngredients().get(4).getType());
+        Mockito.when(ingredient3.getName()).thenReturn(database.availableIngredients().get(3).getName());
+        Mockito.when(ingredient3.getType()).thenReturn(database.availableIngredients().get(3).getType());
         Mockito.when(burger1.getPrice()).thenReturn(2220f);
-        String expected = String.format("(==== Тостовый хлеб ====)%n= sauce Коктейльный соус =%n= filling Овощи микс =%n= filling Котлета 1 =%n(==== Тостовый хлеб ====)%n%nPrice: 2220,000000%n");
-        Assert.assertEquals(expected, burger1.getReceipt());
-    }
-/*
-    @Test
-    public void getReceiptBurgerReturnPriceInPriceFormatInReceipt(){
-        burger1.bun = bun1;
-        Mockito.when(bun1.getName()).thenReturn("Тостовый хлеб");
-        Mockito.when(burger1.getPrice()).thenReturn(100.95f);
-        String expected = String.format("(==== Тостовый хлеб ====)%n(==== Тостовый хлеб ====)%n%nPrice: 100.95%n");
+        String expected = String.format("(==== " + database.availableBuns().get(2).getName() + " ====)%n= "
+                + database.availableIngredients().get(2).getType().toString().toLowerCase() + " "
+                + database.availableIngredients().get(2).getName() + " =%n= "
+                + database.availableIngredients().get(4).getType().toString().toLowerCase() + " "
+                + database.availableIngredients().get(4).getName() + " =%n= "
+                + database.availableIngredients().get(3).getType().toString().toLowerCase() + " "
+                + database.availableIngredients().get(3).getName() + " =%n(==== "
+                + database.availableBuns().get(2).getName()
+                + " ====)%n%nPrice: %f%n", burger1.getPrice());
         Assert.assertEquals(expected, burger1.getReceipt());
     }
 
- */
+    @Test
+    public void getReceiptBurgerReturnPriceInPriceFormatInReceipt(){
+        burger1.bun = bun1;
+        Mockito.when(bun1.getName()).thenReturn(database.availableBuns().get(2).getName());
+        Mockito.when(burger1.getPrice()).thenReturn(100.95f);
+        String expected = String.format("(==== " + database.availableBuns().get(2).getName() + " ====)%n(==== "
+                + database.availableBuns().get(2).getName()
+                + " ====)%n%nPrice: " + burger1.getPrice() + "%n");
+        Assert.assertEquals(expected, burger1.getReceipt());
+    }
+
+
 
 }
